@@ -10,11 +10,18 @@ trait MySslConfiguration {
   // if there is no SSLContext in scope implicitly the HttpServer uses the default SSLContext,
   // since we want non-default settings in this example we make a custom SSLContext available here
   implicit def sslContext: SSLContext = {
-    val keyStoreResource = "/ssl-test-keystore.jks"
+    val keyStoreFileName = "/ssl-test-keystore.jks"
     val password = ""
 
+    // If you want to read the keystore file outside the project, you could use
+    // val keystoreStream = new java.io.FileInputStream(keystoreFileName)
+
+    // Otherwise you need to put the file in project's resource folder and read it
+    val keyStoreStream = getClass.getResourceAsStream(keyStoreFileName)
+
+
     val keyStore = KeyStore.getInstance("jks")
-    keyStore.load(getClass.getResourceAsStream(keyStoreResource), password.toCharArray)
+    keyStore.load(keyStoreStream, password.toCharArray)
     val keyManagerFactory = KeyManagerFactory.getInstance("SunX509")
     keyManagerFactory.init(keyStore, password.toCharArray)
     val trustManagerFactory = TrustManagerFactory.getInstance("SunX509")
